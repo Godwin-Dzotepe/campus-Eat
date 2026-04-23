@@ -2,7 +2,6 @@ import 'dart:io';
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -15,6 +14,8 @@ import '../../../core/utils/validators.dart';
 import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/app_text_field.dart';
 import '../../../features/buyer/providers/home_provider.dart';
+import '../../../core/services/cloudinary_service.dart';
+import '../../../core/services/supabase_food_service.dart';
 import '../../../core/services/write_log_service.dart';
 
 class AddFoodScreen extends ConsumerStatefulWidget {
@@ -141,20 +142,40 @@ class _AddFoodScreenState extends ConsumerState<AddFoodScreen> {
 
   Future<String?> _uploadImage(String foodId) async {
     if (_imageFile == null) return null;
-    final ref = FirebaseStorage.instance.ref('foods/$foodId.jpg');
-
+    final mime = _imageFile!.mimeType ?? '';
+    final extension = mime.contains('png') ? 'png' : 'jpg';
     final bytes = await _imageFile!.readAsBytes();
 
-    await WriteLogService.capture(
+    return await WriteLogService.capture(
       action: 'Upload food image',
-      target: 'storage/foods/$foodId.jpg',
-      task: () => ref.putData(
-        bytes,
-        SettableMetadata(contentType: 'image/jpeg'),
+      target: 'cloudinary/campus_eat/foods/$foodId.$extension',
+      task: () => CloudinaryService.uploadFoodImage(
+        foodId: foodId,
+        bytes: bytes,
+        fileName: 'food.$extension',
       ),
     ).timeout(const Duration(seconds: 25));
+  }
 
-    return await ref.getDownloadURL().timeout(const Duration(seconds: 20));
+  Future<String> _uploadImageWithRetry(String foodId) async {
+    Object? lastError;
+    for (var attempt = 0; attempt < 3; attempt++) {
+      try {
+        await FirebaseAuth.instance.currentUser?.getIdToken(true);
+        final url = await _uploadImage(foodId);
+        if (url != null && url.isNotEmpty) return url;
+        throw FirebaseException(
+          plugin: 'cloudinary',
+          code: 'invalid-url',
+          message: 'Upload completed but no download URL was returned.',
+        );
+      } catch (e) {
+        lastError = e;
+        if (attempt == 2) rethrow;
+        await Future<void>.delayed(Duration(milliseconds: 400 * (attempt + 1)));
+      }
+    }
+    throw lastError ?? Exception('Cloudinary upload failed');
   }
 
   Future<void> _save() async {
@@ -190,22 +211,28 @@ class _AddFoodScreenState extends ConsumerState<AddFoodScreen> {
     try {
       final id = const Uuid().v4();
       String? imageUrl;
-      try {
-        imageUrl = await _uploadImage(id);
-      } on TimeoutException {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Image upload timed out. Saving product without image.'),
-            ),
-          );
-        }
-      } on FirebaseException catch (e) {
-        if (mounted) {
-          final message = e.code == 'permission-denied'
-              ? 'Image upload blocked by Storage rules. Saving product without image.'
-              : 'Image upload failed (${e.code}). Saving product without image.';
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+      if (_imageFile != null) {
+        try {
+          imageUrl = await _uploadImageWithRetry(id);
+        } on TimeoutException {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text(
+                    'Image upload timed out. Please retry; item was not saved.'),
+              ),
+            );
+          }
+          setState(() => _saving = false);
+          return;
+        } on Exception catch (e) {
+          if (mounted) {
+            final message = 'Cloudinary upload failed. ${e.toString()}';
+            ScaffoldMessenger.of(context)
+                .showSnackBar(SnackBar(content: Text(message)));
+          }
+          setState(() => _saving = false);
+          return;
         }
       }
 
@@ -240,6 +267,13 @@ class _AddFoodScreenState extends ConsumerState<AddFoodScreen> {
           'createdAt': FieldValue.serverTimestamp(),
         }),
       ).timeout(const Duration(seconds: 25));
+      if (imageUrl != null && imageUrl.isNotEmpty) {
+        await SupabaseFoodService.saveFoodImageUrl(
+          foodId: id,
+          imageUrl: imageUrl,
+          vendorId: vendorId,
+        );
+      }
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

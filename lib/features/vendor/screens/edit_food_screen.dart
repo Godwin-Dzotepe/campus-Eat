@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_storage/firebase_storage.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -13,6 +13,8 @@ import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/app_text_field.dart';
 import '../../../features/buyer/providers/home_provider.dart';
 import '../../../models/food_model.dart';
+import '../../../core/services/cloudinary_service.dart';
+import '../../../core/services/supabase_food_service.dart';
 import '../../../core/services/write_log_service.dart';
 
 class EditFoodScreen extends ConsumerStatefulWidget {
@@ -178,33 +180,25 @@ class _EditFoodScreenState extends ConsumerState<EditFoodScreen> {
       String? imageUrl = _existingImageUrl;
       if (_newImageFile != null) {
         try {
-          final ref = FirebaseStorage.instance.ref('foods/${widget.foodId}.jpg');
-          final bytes = await _newImageFile!.readAsBytes();
-
-          await WriteLogService.capture(
-            action: 'Upload food image',
-            target: 'storage/foods/${widget.foodId}.jpg',
-            task: () => ref.putData(
-              bytes,
-              SettableMetadata(contentType: 'image/jpeg'),
-            ),
-          ).timeout(const Duration(seconds: 25));
-          imageUrl = await ref.getDownloadURL().timeout(const Duration(seconds: 20));
+          imageUrl = await _uploadImageWithRetry(widget.foodId);
         } on TimeoutException {
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
-                content: Text('Image upload timed out. Saving changes without new image.'),
+                content:
+                    Text('Image upload timed out. Please retry; changes not saved.'),
               ),
             );
           }
-        } on FirebaseException catch (e) {
+          setState(() => _saving = false);
+          return;
+        } on Exception catch (e) {
           if (mounted) {
-            final message = e.code == 'permission-denied'
-                ? 'Image upload blocked by Storage rules. Saving changes without new image.'
-                : 'Image upload failed (${e.code}). Saving changes without new image.';
+            final message = 'Cloudinary upload failed. ${e.toString()}';
             ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
           }
+          setState(() => _saving = false);
+          return;
         }
       }
 
@@ -232,6 +226,12 @@ class _EditFoodScreenState extends ConsumerState<EditFoodScreen> {
           if (imageUrl != null) 'imageUrl': imageUrl,
         }),
       ).timeout(const Duration(seconds: 25));
+      if (imageUrl != null && imageUrl.isNotEmpty) {
+        await SupabaseFoodService.saveFoodImageUrl(
+          foodId: widget.foodId,
+          imageUrl: imageUrl,
+        );
+      }
 
       if (mounted) context.pop();
     } on TimeoutException {
@@ -260,6 +260,41 @@ class _EditFoodScreenState extends ConsumerState<EditFoodScreen> {
     if (mounted) {
       setState(() => _saving = false);
     }
+  }
+
+  Future<String> _uploadImageWithRetry(String foodId) async {
+    Object? lastError;
+    for (var attempt = 0; attempt < 3; attempt++) {
+      try {
+        await FirebaseAuth.instance.currentUser?.getIdToken(true);
+        final mime = _newImageFile!.mimeType ?? '';
+        final extension = mime.contains('png') ? 'png' : 'jpg';
+        final bytes = await _newImageFile!.readAsBytes();
+
+        final url = await WriteLogService.capture(
+          action: 'Upload food image',
+          target: 'cloudinary/campus_eat/foods/$foodId.$extension',
+          task: () => CloudinaryService.uploadFoodImage(
+            foodId: foodId,
+            bytes: bytes,
+            fileName: 'food.$extension',
+          ),
+        ).timeout(const Duration(seconds: 25));
+        if (url.isEmpty) {
+          throw FirebaseException(
+            plugin: 'cloudinary',
+            code: 'invalid-url',
+            message: 'Upload completed but no download URL was returned.',
+          );
+        }
+        return url;
+      } catch (e) {
+        lastError = e;
+        if (attempt == 2) rethrow;
+        await Future<void>.delayed(Duration(milliseconds: 400 * (attempt + 1)));
+      }
+    }
+    throw lastError ?? Exception('Cloudinary upload failed');
   }
 
   @override

@@ -20,10 +20,14 @@ class CartNotifier extends StateNotifier<List<CartItemModel>> {
   CartNotifier(this._ref) : super([]) {
     _ref.listen(authProvider.select((a) => a.valueOrNull), (prev, next) {
       if (prev?.id != next?.id) {
-        _bindUser(next?.id);
+        if (mounted) _bindUser(next?.id);
       }
     });
-    _bindUser(_ref.read(authProvider).valueOrNull?.id);
+    // Defer initial binding to avoid mutating provider state during build.
+    Future.microtask(() {
+      if (!mounted) return;
+      _bindUser(_ref.read(authProvider).valueOrNull?.id);
+    });
   }
 
   bool get isEmpty => state.isEmpty;

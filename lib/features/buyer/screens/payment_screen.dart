@@ -15,7 +15,8 @@ import '../../../models/order_model.dart';
 import '../../../models/address_model.dart';
 
 class PaymentScreen extends ConsumerStatefulWidget {
-  const PaymentScreen({super.key});
+  final Map<String, dynamic>? checkoutArgs;
+  const PaymentScreen({super.key, this.checkoutArgs});
 
   @override
   ConsumerState<PaymentScreen> createState() => _PaymentScreenState();
@@ -59,6 +60,11 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
   Future<void> _pay(Map<String, dynamic> args) async {
     final user = ref.read(authProvider).valueOrNull;
     if (user == null) return;
+    final address = args['address'] as AddressModel?;
+    if (address == null) {
+      _snack('Meet-up location is required');
+      return;
+    }
 
     final total = (args['total'] as num).toDouble();
 
@@ -83,7 +89,6 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
     }
     final deliveryType = args['deliveryType'] as String? ?? 'pickup';
     final deliveryFee = (args['deliveryFee'] as num?)?.toDouble() ?? 0.0;
-    final address = args['address'] as AddressModel?;
     final referral = args['referral'] as String?;
 
     final orderId = const Uuid().v4();
@@ -138,9 +143,7 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final args =
-        (ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?) ??
-            {};
+    final args = widget.checkoutArgs ?? {};
     final theme = Theme.of(context);
     final user = ref.watch(authProvider).valueOrNull;
     final total =

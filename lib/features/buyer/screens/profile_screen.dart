@@ -111,16 +111,17 @@ class ProfileScreen extends ConsumerWidget {
                 TextButton(
                   onPressed: () => showDialog(
                     context: context,
-                    builder: (_) => AlertDialog(
+                    builder: (dialogContext) => AlertDialog(
                       title: const Text('Clear saved addresses?'),
                       content: const Text('This will remove all saved addresses.'),
                       actions: [
                         TextButton(
-                            onPressed: () => Navigator.pop(context),
+                            onPressed: () =>
+                                Navigator.of(dialogContext).pop(),
                             child: const Text('Cancel')),
                         FilledButton(
                           onPressed: () async {
-                            Navigator.pop(context);
+                            Navigator.of(dialogContext).pop();
                             await AddressActions.clearAll(
                                 userId: user.id, addresses: saved);
                           },
@@ -199,16 +200,16 @@ class ProfileScreen extends ConsumerWidget {
             color: Colors.red,
             onTap: () => showDialog(
               context: context,
-              builder: (_) => AlertDialog(
+              builder: (dialogContext) => AlertDialog(
                 title: const Text('Logout?'),
                 content: const Text('Are you sure you want to logout?'),
                 actions: [
                   TextButton(
-                      onPressed: () => Navigator.pop(context),
+                      onPressed: () => Navigator.of(dialogContext).pop(),
                       child: const Text('Cancel')),
                   FilledButton(
                     onPressed: () async {
-                      Navigator.pop(context);
+                      Navigator.of(dialogContext).pop();
                       await ref.read(authActionsProvider).logout();
                     },
                     style:

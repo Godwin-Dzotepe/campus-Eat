@@ -41,48 +41,54 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyAKm3D0Bp2-6wdcJuyIvyWBo1DznL-Oj9s',
-    appId: '1:964972179458:web:a5154579d6e8c010abf71b',
-    messagingSenderId: '964972179458',
-    projectId: 'campuseat-c4318',
-    authDomain: 'campuseat-c4318.firebaseapp.com',
-    storageBucket: 'campuseat-c4318.firebasestorage.app',
+    apiKey: 'AIzaSyBsWHA8827s9TY42Fg2yGQwOeymSk7Q3Jw',
+    appId: '1:254986384951:web:1a6ccd2ff54a832496b1b2',
+    messagingSenderId: '254986384951',
+    projectId: 'appconn-fe65d',
+    authDomain: 'appconn-fe65d.firebaseapp.com',
+    databaseURL: 'https://appconn-fe65d-default-rtdb.firebaseio.com',
+    storageBucket: 'appconn-fe65d.firebasestorage.app',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyAM68xF14rDVWmc_S1qzbwU_JjhvgTqHXs',
-    appId: '1:964972179458:android:b278d51863a957e4abf71b',
-    messagingSenderId: '964972179458',
-    projectId: 'campuseat-c4318',
-    storageBucket: 'campuseat-c4318.firebasestorage.app',
+    apiKey: 'AIzaSyA4rsLteRjGq3ShBAwXMHg1T9rTPUnEMIA',
+    appId: '1:254986384951:android:5ab8e10d61809c2a96b1b2',
+    messagingSenderId: '254986384951',
+    projectId: 'appconn-fe65d',
+    databaseURL: 'https://appconn-fe65d-default-rtdb.firebaseio.com',
+    storageBucket: 'appconn-fe65d.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyBnFgaEWPX0_X9PKhPd9YXPcor7NX844ZI',
-    appId: '1:964972179458:ios:410c16119b9d4ce9abf71b',
-    messagingSenderId: '964972179458',
-    projectId: 'campuseat-c4318',
-    storageBucket: 'campuseat-c4318.firebasestorage.app',
-    iosClientId: '964972179458-4thnbnq7j4udthrokhv1gn07a8hjbe8o.apps.googleusercontent.com',
+    apiKey: 'AIzaSyCsZXg253wTXwC5GSJj5eJCuQT1Auy1_yY',
+    appId: '1:254986384951:ios:5bf23e4c5356fedb96b1b2',
+    messagingSenderId: '254986384951',
+    projectId: 'appconn-fe65d',
+    databaseURL: 'https://appconn-fe65d-default-rtdb.firebaseio.com',
+    storageBucket: 'appconn-fe65d.firebasestorage.app',
+    iosClientId: '254986384951-6vv8q9qss99b5fmcmb8si84n44hhvvdl.apps.googleusercontent.com',
     iosBundleId: 'com.example.campusEat',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyBnFgaEWPX0_X9PKhPd9YXPcor7NX844ZI',
-    appId: '1:964972179458:ios:410c16119b9d4ce9abf71b',
-    messagingSenderId: '964972179458',
-    projectId: 'campuseat-c4318',
-    storageBucket: 'campuseat-c4318.firebasestorage.app',
-    iosClientId: '964972179458-4thnbnq7j4udthrokhv1gn07a8hjbe8o.apps.googleusercontent.com',
+    apiKey: 'AIzaSyCsZXg253wTXwC5GSJj5eJCuQT1Auy1_yY',
+    appId: '1:254986384951:ios:5bf23e4c5356fedb96b1b2',
+    messagingSenderId: '254986384951',
+    projectId: 'appconn-fe65d',
+    databaseURL: 'https://appconn-fe65d-default-rtdb.firebaseio.com',
+    storageBucket: 'appconn-fe65d.firebasestorage.app',
+    iosClientId: '254986384951-6vv8q9qss99b5fmcmb8si84n44hhvvdl.apps.googleusercontent.com',
     iosBundleId: 'com.example.campusEat',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'AIzaSyAKm3D0Bp2-6wdcJuyIvyWBo1DznL-Oj9s',
-    appId: '1:964972179458:web:dc894875d614f4f3abf71b',
-    messagingSenderId: '964972179458',
-    projectId: 'campuseat-c4318',
-    authDomain: 'campuseat-c4318.firebaseapp.com',
-    storageBucket: 'campuseat-c4318.firebasestorage.app',
+    apiKey: 'AIzaSyBsWHA8827s9TY42Fg2yGQwOeymSk7Q3Jw',
+    appId: '1:254986384951:web:ba7cb61a2bf8159196b1b2',
+    messagingSenderId: '254986384951',
+    projectId: 'appconn-fe65d',
+    authDomain: 'appconn-fe65d.firebaseapp.com',
+    databaseURL: 'https://appconn-fe65d-default-rtdb.firebaseio.com',
+    storageBucket: 'appconn-fe65d.firebasestorage.app',
   );
+
 }

@@ -126,7 +126,6 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
               selected: deliveryType == 'pickup',
               onTap: () {
                 ref.read(deliveryTypeProvider.notifier).state = 'pickup';
-                ref.read(selectedAddressProvider.notifier).state = null;
               },
             )),
             const SizedBox(width: 12),
@@ -141,49 +140,47 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
             )),
           ]),
 
-          if (deliveryType == 'delivery') ...[
-            const SizedBox(height: 16),
-            Text('Delivery Location',
-                style: theme.textTheme.titleSmall
-                    ?.copyWith(fontWeight: FontWeight.w600)),
-            const SizedBox(height: 8),
-            GestureDetector(
-              onTap: () async {
-                await context.push('/buyer/location');
-                setState(() {});
-              },
-              child: Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Row(children: [
-                    Icon(Icons.location_on_rounded,
-                        color: theme.colorScheme.primary),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: address == null
-                          ? Text('Tap to select location',
-                              style: TextStyle(
-                                  color: theme.colorScheme.onSurfaceVariant))
-                          : Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(address.label,
-                                    style: const TextStyle(
-                                        fontWeight: FontWeight.w600)),
-                                Text(address.fullAddress,
-                                    style: const TextStyle(
-                                        fontSize: 12, color: Colors.grey),
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis),
-                              ],
-                            ),
-                    ),
-                    const Icon(Icons.chevron_right, color: Colors.grey),
-                  ]),
-                ),
+          const SizedBox(height: 16),
+          Text('Meet-up Location (Required)',
+              style: theme.textTheme.titleSmall
+                  ?.copyWith(fontWeight: FontWeight.w600)),
+          const SizedBox(height: 8),
+          GestureDetector(
+            onTap: () async {
+              await context.push('/buyer/location');
+              setState(() {});
+            },
+            child: Card(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Row(children: [
+                  Icon(Icons.location_on_rounded,
+                      color: theme.colorScheme.primary),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: address == null
+                        ? Text('Tap to select where to meet the vendor',
+                            style: TextStyle(
+                                color: theme.colorScheme.onSurfaceVariant))
+                        : Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(address.label,
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.w600)),
+                              Text(address.fullAddress,
+                                  style: const TextStyle(
+                                      fontSize: 12, color: Colors.grey),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis),
+                            ],
+                          ),
+                  ),
+                  const Icon(Icons.chevron_right, color: Colors.grey),
+                ]),
               ),
             ),
-          ],
+          ),
 
           const SizedBox(height: 20),
 
@@ -226,10 +223,11 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
 
           FilledButton(
             onPressed: () {
-              if (deliveryType == 'delivery' && address == null) {
+              if (address == null) {
                 ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
-                        content: Text('Please select a delivery location')));
+                        content:
+                            Text('Please select a meet-up location first')));
                 return;
               }
               context.push('/buyer/payment', extra: {

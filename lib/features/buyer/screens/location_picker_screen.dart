@@ -19,6 +19,7 @@ class LocationPickerScreen extends ConsumerStatefulWidget {
 
 class _LocationPickerScreenState
     extends ConsumerState<LocationPickerScreen> {
+  static const _tomTomApiKey = 'JBHJkfd6og6LP8I9twlyFy5hQ1Q8vBTZ';
   final _mapController = MapController();
   final _searchCtrl = TextEditingController();
   LatLng _center = const LatLng(6.5244, 3.3792); // Lagos default
@@ -94,7 +95,7 @@ class _LocationPickerScreenState
     final user = ref.watch(authProvider).valueOrNull;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Select Location'),
+        title: const Text('Select Meet-up Location'),
         centerTitle: true,
       ),
       body: Stack(
@@ -113,7 +114,7 @@ class _LocationPickerScreenState
             children: [
               TileLayer(
                 urlTemplate:
-                    'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                    'https://api.tomtom.com/map/1/tile/basic/main/{z}/{x}/{y}.png?key=$_tomTomApiKey',
                 userAgentPackageName: 'com.campuseat.app',
               ),
               MarkerLayer(
@@ -273,10 +274,10 @@ class _LocationPickerScreenState
             bottom: 32,
             left: 20,
             right: 20,
-            child: FilledButton.icon(
+                child: FilledButton.icon(
               onPressed: _confirm,
               icon: const Icon(Icons.check_rounded),
-              label: const Text('Confirm Location',
+              label: const Text('Confirm Meet-up Location',
                   style: TextStyle(
                       fontSize: 16, fontWeight: FontWeight.w600)),
               style: FilledButton.styleFrom(

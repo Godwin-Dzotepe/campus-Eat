@@ -6,6 +6,7 @@ import 'app/app.dart';
 import 'core/services/firebase_service.dart';
 import 'core/services/hive_service.dart';
 import 'core/services/notification_service.dart';
+import 'core/services/supabase_service.dart';
 import 'firebase_options.dart';
 
 void main() {
@@ -26,6 +27,7 @@ class _AppBootstrapState extends State<_AppBootstrap> {
   Future<_BootstrapResult> _init() async {
     await HiveService.init();
     await NotificationService.init();
+    await SupabaseService.init();
     try {
       await Firebase.initializeApp(
         options: DefaultFirebaseOptions.currentPlatform,
@@ -97,6 +99,10 @@ class _BootstrapError extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final message = error?.toString() ?? 'Unknown error';
+    final supabaseNote = SupabaseService.isConfigured
+        ? ''
+        : '\n\nSupabase is not configured yet. Run with '
+            '--dart-define=SUPABASE_ANON_KEY=... to enable it.';
     return Directionality(
       textDirection: TextDirection.ltr,
       child: DecoratedBox(
@@ -129,7 +135,7 @@ class _BootstrapError extends StatelessWidget {
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  message,
+                  '$message$supabaseNote',
                   textAlign: TextAlign.center,
                   style: const TextStyle(
                       color: Colors.black54,

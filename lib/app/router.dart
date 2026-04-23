@@ -146,8 +146,11 @@ final routerProvider = Provider<GoRouter>((ref) {
           path: '/buyer/location',
           builder: (_, __) => const LocationPickerScreen()),
       GoRoute(
-          path: '/buyer/payment',
-          builder: (_, __) => const PaymentScreen()),
+        path: '/buyer/payment',
+        builder: (_, state) => PaymentScreen(
+          checkoutArgs: state.extra as Map<String, dynamic>?,
+        ),
+      ),
       GoRoute(
         path: '/buyer/success',
         builder: (context, state) =>
