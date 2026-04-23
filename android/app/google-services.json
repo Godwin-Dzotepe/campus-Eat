@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "964972179458",
+    "project_id": "campuseat-c4318",
+    "storage_bucket": "campuseat-c4318.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:964972179458:android:b278d51863a957e4abf71b",
+        "android_client_info": {
+          "package_name": "com.example.campus_eat"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "964972179458-dm8h627hgqdsi1r545g7for8uvbduv9f.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAM68xF14rDVWmc_S1qzbwU_JjhvgTqHXs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "964972179458-dm8h627hgqdsi1r545g7for8uvbduv9f.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "964972179458-4thnbnq7j4udthrokhv1gn07a8hjbe8o.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.campusEat"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
