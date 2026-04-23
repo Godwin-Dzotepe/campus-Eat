@@ -31,7 +31,7 @@ workflows:
     publishing:
       email:
         recipients:
-          - $FCI_BUILD_INITIATOR
+          - admin@campuseat.com
 
   ios-release:
     name: iOS Release
@@ -62,4 +62,4 @@ workflows:
     publishing:
       email:
         recipients:
-          - $FCI_BUILD_INITIATOR
+          - admin@campuseat.com
