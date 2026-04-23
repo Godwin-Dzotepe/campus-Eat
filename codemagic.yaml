@@ -1,0 +1,65 @@
+workflows:
+  android-release:
+    name: Android Release
+    max_build_duration: 120
+    environment:
+      flutter: stable
+      xcode: latest
+      groups:
+        - campus_eat_secrets
+    scripts:
+      - name: Flutter pub get
+        script: |
+          flutter pub get
+      - name: Analyze (non-blocking)
+        script: |
+          flutter analyze || true
+      - name: Unit tests (non-blocking)
+        script: |
+          flutter test || true
+      - name: Build Android App Bundle
+        script: |
+          flutter build appbundle --release \
+            --dart-define=SUPABASE_ANON_KEY=$SUPABASE_ANON_KEY \
+            --dart-define=SUPABASE_URL=$SUPABASE_URL \
+            --dart-define=CLOUDINARY_CLOUD_NAME=$CLOUDINARY_CLOUD_NAME \
+            --dart-define=CLOUDINARY_UPLOAD_PRESET=$CLOUDINARY_UPLOAD_PRESET
+    artifacts:
+      - build/**/outputs/**/*.aab
+      - build/**/outputs/**/mapping.txt
+      - flutter_drive.log
+    publishing:
+      email:
+        recipients:
+          - $FCI_BUILD_INITIATOR
+
+  ios-release:
+    name: iOS Release
+    max_build_duration: 120
+    instance_type: mac_mini_m1
+    environment:
+      flutter: stable
+      xcode: latest
+      cocoapods: default
+      groups:
+        - campus_eat_secrets
+    integrations:
+      app_store_connect: codemagic_app_store_connect
+    scripts:
+      - name: Flutter pub get
+        script: |
+          flutter pub get
+      - name: Build iOS (no codesign)
+        script: |
+          flutter build ios --release --no-codesign \
+            --dart-define=SUPABASE_ANON_KEY=$SUPABASE_ANON_KEY \
+            --dart-define=SUPABASE_URL=$SUPABASE_URL \
+            --dart-define=CLOUDINARY_CLOUD_NAME=$CLOUDINARY_CLOUD_NAME \
+            --dart-define=CLOUDINARY_UPLOAD_PRESET=$CLOUDINARY_UPLOAD_PRESET
+    artifacts:
+      - build/ios/iphoneos/*.app
+      - build/ios/archive/*.xcarchive
+    publishing:
+      email:
+        recipients:
+          - $FCI_BUILD_INITIATOR
